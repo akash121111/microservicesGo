@@ -1,0 +1,65 @@
+name: Microservices CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  go-services:
+    name: Go Services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Test Product Service
+        working-directory: product
+        run: go test ./...
+
+      - name: Test Order Service
+        working-directory: order
+        run: go test ./...
+
+  node-services:
+    name: Node Services
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            api-gateway/package-lock.json
+            user/package-lock.json
+
+      - name: Install API Gateway dependencies
+        working-directory: api-gateway
+        run: npm ci
+
+      - name: Test API Gateway
+        working-directory: api-gateway
+        run: npm test
+
+      - name: Install User Service dependencies
+        working-directory: user
+        run: npm ci
+
+      - name: Test User Service
+        working-directory: user
+        run: npm test
