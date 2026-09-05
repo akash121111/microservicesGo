@@ -1,0 +1,25 @@
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+COPY go.mod go.sum ./
+
+RUN GOSUMDB=off go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o order-service .
+
+FROM alpine:3.22.0
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=builder /app/order-service .
+
+EXPOSE 3003
+
+CMD ["./order-service"]

@@ -1,0 +1,13 @@
+# Git
+.git
+.gitignore
+
+# Environment
+.env
+
+# Go build artifacts
+*.exe
+*.test
+
+# Documentation
+README.md

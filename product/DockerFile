@@ -1,0 +1,33 @@
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+# Product module
+COPY product/go.mod product/go.sum ./product/
+
+# Shared proto module
+COPY proto ./proto
+
+WORKDIR /app/product
+
+RUN GOSUMDB=off go mod download
+
+# Copy Product source
+COPY product/ .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o product-service .
+
+FROM alpine:3.22.0
+
+WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=builder /app/product/product-service .
+
+EXPOSE 3002
+EXPOSE 50051
+
+CMD ["./product-service"]

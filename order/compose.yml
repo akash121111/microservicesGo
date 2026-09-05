@@ -1,0 +1,16 @@
+services:
+
+  gin-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gindb
+    ports:
+      - "5433:5432"
+    volumes:
+      - data-gin:/var/lib/postgresql/data
+
+
+volumes:
+  data-gin:
